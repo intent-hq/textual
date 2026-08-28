@@ -75,6 +75,7 @@
     }
 
     func localCharacterRange(at indexPath: IndexPath) -> Range<Int> {
+      guard contains(indexPath) else { return 0..<0 }
       let line = layouts[indexPath.layout].lines[indexPath.line]
       return line.runs[indexPath.run]
         .slices[indexPath.runSlice]
@@ -82,11 +83,16 @@
     }
 
     func layoutDirection(at indexPath: IndexPath) -> LayoutDirection {
+      guard contains(indexPath) else { return .leftToRight }
       let line = layouts[indexPath.layout].lines[indexPath.line]
       return line.runs[indexPath.run].layoutDirection
     }
 
     func position(at layoutIndex: Int, localCharacterIndex: Int) -> TextPosition? {
+      guard layouts.indices.contains(layoutIndex) else {
+        return nil
+      }
+
       guard localCharacterIndex > 0 else {
         return TextPosition(
           indexPath: .init(layout: layoutIndex),

@@ -24,6 +24,10 @@
         return caretRect(for: range.start)
       }
 
+      guard contains(range) else {
+        return .null
+      }
+
       var firstRect = CGRect.null
       let layout = range.start.indexPath.layout
       let line = range.start.indexPath.line
@@ -39,6 +43,10 @@
     }
 
     func caretRect(for position: TextPosition) -> CGRect {
+      guard contains(position) else {
+        return .zero
+      }
+
       let runSliceRect = runSliceRect(at: position.indexPath)
       let lineRect = lineRect(at: position.indexPath)
       let layoutDirection = layoutDirection(at: position.indexPath)
@@ -65,9 +73,14 @@
 
       let lineIndex = layout.lineIndex(closestToY: localPoint.y)
       let line = layout.lines[lineIndex]
+
+      guard !line.runs.isEmpty else { return nil }
+
       let runIndex = line.runIndex(closestToX: localPoint.x)
       let run = line.runs[runIndex]
       let direction = run.layoutDirection
+
+      guard !run.slices.isEmpty else { return nil }
 
       let runSliceIndex = run.sliceIndex(closestToX: localPoint.x)
       let runSlice = run.slices[runSliceIndex]
@@ -105,8 +118,14 @@
 
       let lineIndex = layout.lineIndex(closestToY: localPoint.y)
       let line = layout.lines[lineIndex]
+
+      guard !line.runs.isEmpty else { return nil }
+
       let runIndex = line.runIndex(closestToX: localPoint.x)
       let run = line.runs[runIndex]
+
+      guard !run.slices.isEmpty else { return nil }
+
       let runSliceIndex = run.sliceIndex(closestToX: localPoint.x)
 
       let start = TextPosition(
@@ -124,6 +143,10 @@
     }
 
     func isPositionAtBlockBoundary(_ position: TextPosition) -> Bool {
+      guard layouts.indices.contains(position.indexPath.layout) else {
+        return false
+      }
+
       if position
         == TextPosition(
           indexPath: .init(layout: position.indexPath.layout),
@@ -160,6 +183,13 @@
     }
 
     func positionAbove(_ position: TextPosition, anchor: TextPosition) -> TextPosition? {
+      guard
+        contains(anchor),
+        layouts.indices.contains(position.indexPath.layout)
+      else {
+        return nil
+      }
+
       let anchorX = runSliceRect(at: anchor.indexPath).midX
 
       if position.indexPath.line > 0 {
@@ -184,6 +214,13 @@
     }
 
     func positionBelow(_ position: TextPosition, anchor: TextPosition) -> TextPosition? {
+      guard
+        contains(anchor),
+        layouts.indices.contains(position.indexPath.layout)
+      else {
+        return nil
+      }
+
       let anchorX = runSliceRect(at: anchor.indexPath).midX
       let layout = layouts[position.indexPath.layout]
 
@@ -207,6 +244,10 @@
     }
 
     func runSliceSelectionRect(at indexPath: IndexPath) -> CGRect {
+      guard contains(indexPath) else {
+        return .null
+      }
+
       let layout = layouts[indexPath.layout]
       let line = layout.lines[indexPath.line]
       let runSlice = line.runs[indexPath.run].slices[indexPath.runSlice]
@@ -225,12 +266,18 @@
       layoutIndex: Int,
       lineIndex: Int
     ) -> TextPosition? {
+      guard layouts.indices.contains(layoutIndex) else { return nil }
       let layout = layouts[layoutIndex]
+
+      guard layout.lines.indices.contains(lineIndex) else { return nil }
       let line = layout.lines[lineIndex]
+
+      guard !line.runs.isEmpty else { return nil }
       let runIndex = line.runIndex(closestToX: x)
       let run = line.runs[runIndex]
       let direction = run.layoutDirection
 
+      guard !run.slices.isEmpty else { return nil }
       let runSliceIndex = run.sliceIndex(closestToX: x)
       let runSlice = run.slices[runSliceIndex]
 
@@ -253,13 +300,17 @@
     }
 
     fileprivate func runSliceRect(at indexPath: IndexPath) -> CGRect {
+      guard contains(indexPath) else { return .zero }
       let layout = layouts[indexPath.layout]
       let runSlice = layout.lines[indexPath.line].runs[indexPath.run].slices[indexPath.runSlice]
       return runSlice.typographicBounds.offsetBy(dx: layout.origin.x, dy: layout.origin.y)
     }
 
     fileprivate func lineRect(at indexPath: IndexPath) -> CGRect {
+      guard layouts.indices.contains(indexPath.layout) else { return .zero }
       let layout = layouts[indexPath.layout]
+
+      guard layout.lines.indices.contains(indexPath.line) else { return .zero }
       let line = layout.lines[indexPath.line]
       return line.typographicBounds.offsetBy(dx: layout.origin.x, dy: layout.origin.y)
     }

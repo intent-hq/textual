@@ -13,6 +13,7 @@
 
   extension TextLayoutCollection {
     fileprivate func indexPathForRunSlice(after indexPath: IndexPath) -> IndexPath? {
+      guard contains(indexPath) else { return nil }
       let layout = layouts[indexPath.layout]
       let line = layout.lines[indexPath.line]
       let run = line.runs[indexPath.run]
@@ -49,6 +50,7 @@
     }
 
     fileprivate func indexPathForRunSlice(before indexPath: IndexPath) -> IndexPath? {
+      guard contains(indexPath) else { return nil }
       if indexPath.runSlice > 0 {
         return IndexPath(
           runSlice: indexPath.runSlice - 1,

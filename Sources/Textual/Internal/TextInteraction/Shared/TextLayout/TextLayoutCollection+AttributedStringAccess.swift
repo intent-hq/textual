@@ -7,7 +7,7 @@
     }
 
     func attributedText(in range: TextRange) -> NSAttributedString {
-      guard !range.isCollapsed else { return NSAttributedString() }
+      guard !range.isCollapsed, contains(range) else { return NSAttributedString() }
 
       let attributedText = NSMutableAttributedString()
       let start = range.start.indexPath.layout
