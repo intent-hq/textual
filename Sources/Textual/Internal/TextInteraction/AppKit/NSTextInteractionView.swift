@@ -8,12 +8,13 @@
   // The view sits in an overlay above one or more rendered `Text` fragments. It uses
   // `TextSelectionModel` for hit testing and range manipulation, and it respects `exclusionRects`
   // so embedded scrollable regions continue to receive input events. Link taps are forwarded to
-  // `openURL`.
+  // `openURL`; attachment taps are forwarded to `attachmentTapAction` when one is configured.
 
   final class NSTextInteractionView: NSView {
     var model: TextSelectionModel
     var exclusionRects: [CGRect]
     var openURL: OpenURLAction
+    var attachmentTapAction: (@MainActor (AnyAttachment) -> Void)?
 
     override var acceptsFirstResponder: Bool { true }
     override var isFlipped: Bool { true }
@@ -25,11 +26,13 @@
     init(
       model: TextSelectionModel,
       exclusionRects: [CGRect],
-      openURL: OpenURLAction
+      openURL: OpenURLAction,
+      attachmentTapAction: (@MainActor (AnyAttachment) -> Void)?
     ) {
       self.model = model
       self.exclusionRects = exclusionRects
       self.openURL = openURL
+      self.attachmentTapAction = attachmentTapAction
 
       super.init(frame: .zero)
       self.wantsLayer = false
@@ -58,7 +61,9 @@
 
       switch event.clickCount {
       case 1:
-        if let url = model.url(for: location) {
+        if let attachmentTapAction, let attachment = model.attachment(for: location) {
+          attachmentTapAction(attachment)
+        } else if let url = model.url(for: location) {
           openURL(url)
         } else {
           resetSelection()

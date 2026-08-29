@@ -64,6 +64,7 @@
     var layoutDirection: LayoutDirection { get }
     var typographicBounds: CGRect { get }
     var url: URL? { get }
+    var attachment: AnyAttachment? { get }
     var slices: [any TextRunSlice] { get }
   }
 

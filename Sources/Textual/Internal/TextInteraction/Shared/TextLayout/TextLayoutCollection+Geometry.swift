@@ -19,6 +19,23 @@
       return url
     }
 
+    func attachment(for point: CGPoint) -> AnyAttachment? {
+      guard let layout = layouts.first(where: { $0.frame.contains(point) }) else {
+        return nil
+      }
+
+      let localPoint = CGPoint(
+        x: point.x - layout.origin.x,
+        y: point.y - layout.origin.y
+      )
+
+      let attachment = layout.runs.first {
+        $0.typographicBounds.contains(localPoint)
+      }?.attachment
+
+      return attachment
+    }
+
     func firstRect(for range: TextRange) -> CGRect {
       guard !range.isCollapsed else {
         return caretRect(for: range.start)

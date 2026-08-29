@@ -11,6 +11,10 @@ import SwiftUI
 // The hit-shapes cover attachment run rects only, so taps elsewhere fall through to link and
 // selection handling. When no action is set in the environment, no hit-shapes are installed and
 // behavior is unchanged.
+//
+// When text selection is enabled, the platform interaction view (`UITextInteractionView` /
+// `NSTextInteractionView`) wins hit-testing over these hit-shapes; it resolves attachment taps
+// itself via `TextSelectionModel.attachment(for:)` and invokes the same environment action.
 
 extension EnvironmentValues {
   @Entry var attachmentTapAction: (@MainActor (AnyAttachment) -> Void)? = nil
