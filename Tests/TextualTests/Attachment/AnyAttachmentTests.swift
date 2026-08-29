@@ -36,4 +36,12 @@ struct AnyAttachmentTests {
 
     #expect(anyAttachment.base as? TestAttachment == attachment)
   }
+
+  @Test func existentialInitFlattensNestedAnyAttachment() {
+    let makeAnyAttachment: (any Textual.Attachment) -> AnyAttachment = AnyAttachment.init
+    let attachment = TestAttachment(name: "image")
+    let anyAttachment = makeAnyAttachment(AnyAttachment(attachment))
+
+    #expect(anyAttachment.base as? TestAttachment == attachment)
+  }
 }

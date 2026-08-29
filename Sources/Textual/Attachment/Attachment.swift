@@ -87,10 +87,15 @@ public struct AnyAttachment: Attachment {
   /// Creates a type-erased attachment from an existential value.
   ///
   /// Marked as a disfavored overload so calls with a concrete attachment type resolve to the
-  /// flattening generic overload on every supported compiler version.
+  /// generic overload on every supported compiler version. Like the generic overload, this
+  /// initializer flattens a wrapped ``AnyAttachment`` so ``base`` is always a concrete attachment.
   @_disfavoredOverload
   public init(_ base: any Attachment) {
-    self.base = base
+    if let base = base as? AnyAttachment {
+      self = base
+    } else {
+      self.base = base
+    }
   }
 
   public var description: String {
