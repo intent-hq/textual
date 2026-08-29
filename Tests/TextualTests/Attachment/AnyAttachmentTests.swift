@@ -4,7 +4,7 @@ import Testing
 @testable import Textual
 
 struct AnyAttachmentTests {
-  struct TestAttachment: Attachment {
+  struct TestAttachment: Textual.Attachment {
     let name: String
 
     var description: String {
