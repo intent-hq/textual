@@ -142,6 +142,29 @@ extension TextualNamespace where Base: View {
     base.environment(\.imageAttachmentLoader, loader)
   }
 
+  /// Sets an action to perform when the user taps an attachment in ``InlineText`` or
+  /// ``StructuredText``.
+  ///
+  /// Attachments are rendered as non-interactive views by default. Use this modifier to receive
+  /// taps on rendered attachments, for example to present an image attachment in a viewer:
+  ///
+  /// ```swift
+  /// StructuredText(markdown: "![](image.png)")
+  ///   .textual.onAttachmentTap { attachment in
+  ///     presentedAttachment = attachment
+  ///   }
+  /// ```
+  ///
+  /// The action receives the tapped attachment as an ``AnyAttachment``; use
+  /// ``AnyAttachment/base`` to recover the concrete attachment type. Tap handling is limited to
+  /// the attachment bounds, so text selection and link handling elsewhere are unaffected. Without
+  /// this modifier, attachments remain non-interactive.
+  public func onAttachmentTap(
+    _ action: @escaping @MainActor (_ attachment: AnyAttachment) -> Void
+  ) -> some View {
+    base.environment(\.attachmentTapAction, action)
+  }
+
   /// Sets the attachment loader used to resolve custom emoji attachments.
   public func emojiAttachmentLoader(_ loader: some AttachmentLoader) -> some View {
     base.environment(\.emojiAttachmentLoader, loader)

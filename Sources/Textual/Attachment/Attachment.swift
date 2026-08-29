@@ -63,7 +63,17 @@ extension Attachment {
 ///
 /// Textual uses `AnyAttachment` to store heterogeneous attachments in attributed content.
 public struct AnyAttachment: Attachment {
-  let base: any Attachment
+  /// The wrapped attachment.
+  ///
+  /// Use this property to recover the concrete attachment type, for example in an
+  /// attachment tap action:
+  ///
+  /// ```swift
+  /// if let imageAttachment = anyAttachment.base as? MyImageAttachment {
+  ///   // ...
+  /// }
+  /// ```
+  public let base: any Attachment
 
   /// Creates a type-erased attachment from a concrete attachment.
   public init(_ base: some Attachment) {
