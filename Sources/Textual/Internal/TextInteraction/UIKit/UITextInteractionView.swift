@@ -8,9 +8,10 @@
   // `UITextInteractionView` implements selection and link interaction on iOS-family platforms.
   //
   // The view sits in an overlay above one or more rendered `Text` fragments. It uses
-  // `TextSelectionModel` to translate touch locations into URLs and selection ranges, and it
-  // respects `exclusionRects` so embedded scrollable regions can continue to handle gestures.
-  // Selection UI is provided by `UITextInteraction` configured for non-editable content.
+  // `TextSelectionModel` to translate touch locations into attachments, URLs, and selection
+  // ranges, and it respects `exclusionRects` so embedded scrollable regions can continue to
+  // handle gestures. Selection UI is provided by `UITextInteraction` configured for non-editable
+  // content.
 
   final class UITextInteractionView: UIView {
     override var canBecomeFirstResponder: Bool {
@@ -20,6 +21,7 @@
     var model: TextSelectionModel
     var exclusionRects: [CGRect]
     var openURL: OpenURLAction
+    var attachmentTapAction: (@MainActor (AnyAttachment) -> Void)?
 
     weak var inputDelegate: (any UITextInputDelegate)?
 
@@ -31,11 +33,13 @@
     init(
       model: TextSelectionModel,
       exclusionRects: [CGRect],
-      openURL: OpenURLAction
+      openURL: OpenURLAction,
+      attachmentTapAction: (@MainActor (AnyAttachment) -> Void)?
     ) {
       self.model = model
       self.exclusionRects = exclusionRects
       self.openURL = openURL
+      self.attachmentTapAction = attachmentTapAction
       self.selectionInteraction = UITextInteraction(for: .nonEditable)
 
       super.init(frame: .zero)
@@ -109,6 +113,10 @@
 
     @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
       let location = gesture.location(in: self)
+      if let attachmentTapAction, let attachment = model.attachment(for: location) {
+        attachmentTapAction(attachment)
+        return
+      }
       guard let url = model.url(for: location) else {
         model.selectedRange = nil
         return

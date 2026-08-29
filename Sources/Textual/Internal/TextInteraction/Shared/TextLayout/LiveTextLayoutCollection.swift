@@ -147,6 +147,10 @@
       base.url
     }
 
+    var attachment: AnyAttachment? {
+      base.attachment
+    }
+
     private(set) lazy var slices: [any TextRunSlice] = makeRunSlices()
 
     let base: Text.Layout.Run
@@ -171,6 +175,7 @@
     let layoutDirection: LayoutDirection = .localeBased()
     let typographicBounds: CGRect
     let url: URL? = nil
+    let attachment: AnyAttachment? = nil
     let slice: EmptyRunSlice
 
     var slices: [any TextRunSlice] {

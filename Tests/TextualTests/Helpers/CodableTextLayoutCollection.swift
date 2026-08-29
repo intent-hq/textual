@@ -126,6 +126,11 @@
       _slices
     }
 
+    // Attachments are not part of the serialized fixture format.
+    var attachment: AnyAttachment? {
+      nil
+    }
+
     let isRightToLeft: Bool
     let typographicBounds: CGRect
     let url: URL?

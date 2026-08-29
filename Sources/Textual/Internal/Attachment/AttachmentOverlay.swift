@@ -8,6 +8,9 @@ import SwiftUI
 // `Text.LayoutKey` preference; this modifier reads the anchored layout, converts its anchor to a
 // concrete origin using `GeometryReader`, and installs an `AttachmentView` that draws attachments
 // at their run bounds.
+//
+// Drawing is non-interactive; opt-in tap handling is provided separately by
+// `AttachmentTapInteraction`.
 
 struct AttachmentOverlay: ViewModifier {
   private let attachments: Set<AnyAttachment>

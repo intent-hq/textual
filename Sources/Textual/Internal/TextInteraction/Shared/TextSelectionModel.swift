@@ -80,6 +80,10 @@
       layoutCollection.url(for: point)
     }
 
+    func attachment(for point: CGPoint) -> AnyAttachment? {
+      layoutCollection.attachment(for: point)
+    }
+
     func layoutIndex(of layout: Text.Layout) -> Int? {
       layoutCollection.index(of: layout)
     }

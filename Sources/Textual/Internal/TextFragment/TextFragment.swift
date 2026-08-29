@@ -13,6 +13,7 @@ import SwiftUI
 // - TextSelectionBackground renders selection highlights on macOS
 // - AttachmentOverlay draws attachments at their run locations with selection-aware dimming
 // - TextLinkInteraction handles tap gestures on links
+// - AttachmentTapInteraction handles opt-in tap gestures on attachments
 //
 // These overlays use backgroundPreferenceValue and overlayPreferenceValue to access
 // Text.Layout and render in fragment-local coordinates. Fragment-level overlays enable
@@ -48,6 +49,7 @@ struct TextFragment<Content: AttributedStringProtocol>: View {
       .modifier(TextSelectionBackground())
       .modifier(AttachmentOverlay(attachments: content.attachments()))
       .modifier(TextLinkInteraction())
+      .modifier(AttachmentTapInteraction())
   }
 
   private var text: Text {

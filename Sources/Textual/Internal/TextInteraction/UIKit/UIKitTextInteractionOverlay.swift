@@ -23,7 +23,8 @@
       UITextInteractionView(
         model: model,
         exclusionRects: overflowFrames,
-        openURL: context.environment.openURL
+        openURL: context.environment.openURL,
+        attachmentTapAction: context.environment.attachmentTapAction
       )
     }
 
@@ -31,6 +32,7 @@
       uiView.model = model
       uiView.exclusionRects = overflowFrames
       uiView.openURL = context.environment.openURL
+      uiView.attachmentTapAction = context.environment.attachmentTapAction
     }
   }
 #endif
