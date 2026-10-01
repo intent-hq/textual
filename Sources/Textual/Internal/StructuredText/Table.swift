@@ -11,8 +11,6 @@ extension StructuredText {
   struct Table: View {
     @Environment(\.tableStyle) private var tableStyle
 
-    @State private var spacing = TableCell.Spacing()
-
     private let intent: PresentationIntent.IntentType?
     private let content: AttributedSubstring
     private let columns: [PresentationIntent.TableColumn]
@@ -33,9 +31,6 @@ extension StructuredText {
         indentationLevel: indentationLevel
       )
       let resolvedStyle = tableStyle.resolve(configuration: configuration)
-        .onPreferenceChange(TableCell.SpacingKey.self) { @MainActor in
-          spacing = $0
-        }
 
       AnyView(resolvedStyle)
     }
@@ -44,7 +39,7 @@ extension StructuredText {
     private var label: some View {
       let rowRuns = content.blockRuns(parent: intent)
 
-      Grid(horizontalSpacing: spacing.horizontal, verticalSpacing: spacing.vertical) {
+      TableGrid {
         ForEach(rowRuns.indices, id: \.self) { rowIndex in
           let rowRun = rowRuns[rowIndex]
           let rowContent = content[rowRun.range]
@@ -82,6 +77,25 @@ extension StructuredText {
       @unknown default:
         return .leading
       }
+    }
+  }
+}
+
+extension EnvironmentValues {
+  @Entry var tableCellSpacing = StructuredText.TableCell.Spacing()
+}
+
+private struct TableGrid<Content: View>: View {
+  @Environment(\.tableCellSpacing) private var spacing
+  private let content: Content
+
+  init(@ViewBuilder content: () -> Content) {
+    self.content = content()
+  }
+
+  var body: some View {
+    Grid(horizontalSpacing: spacing.horizontal, verticalSpacing: spacing.vertical) {
+      content
     }
   }
 }

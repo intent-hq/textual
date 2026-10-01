@@ -23,9 +23,10 @@ extension StructuredText {
       Group(subviews: content) { children in
         BlockVStackLayout(textAlignment: textAlignment) {
           ForEach(children) {
-            BlockLayoutView($0)
+            BlockLayoutView($0, blockSpacing: $0.containerValues.textualBlockSpacing)
           }
         }
+        .containerValue(\.textualBlockSpacing, children.blockSpacing)
       }
     }
   }
@@ -40,22 +41,20 @@ extension StructuredText {
     @Environment(\.listItemSpacingEnabled) private var listItemSpacingEnabled
     @Environment(\.resolvedListItemSpacing) private var resolvedListItemSpacing
 
-    @State private var blockSpacing = BlockSpacing()
-
     private let content: Content
+    private let blockSpacing: BlockSpacing
 
-    init(_ content: Content) {
+    init(_ content: Content, blockSpacing: BlockSpacing) {
       self.content = content
+      self.blockSpacing = blockSpacing
     }
 
     var body: some View {
-      // Read the block spacing preference and apply it as a layout value
       content
-        .onPreferenceChange(BlockSpacingKey.self) { @MainActor value in
-          // Override with the resolved list item spacing if enabled
-          blockSpacing = listItemSpacingEnabled ? resolvedListItemSpacing : value
-        }
-        .layoutValue(key: BlockSpacingKey.self, value: blockSpacing)
+        .layoutValue(
+          key: BlockSpacingKey.self,
+          value: listItemSpacingEnabled ? resolvedListItemSpacing : blockSpacing
+        )
     }
   }
 
@@ -133,6 +132,40 @@ extension StructuredText {
 
         if index < subviews.count - 1 {
           currentY += cache.spacings[index]
+        }
+      }
+    }
+  }
+}
+
+extension StructuredText.BlockSpacingKey: ContainerValueKey {}
+
+extension ContainerValues {
+  var textualBlockSpacing: StructuredText.BlockSpacing {
+    get { self[StructuredText.BlockSpacingKey.self] }
+    set { self[StructuredText.BlockSpacingKey.self] = newValue }
+  }
+}
+
+extension SubviewsCollection {
+  var blockSpacing: StructuredText.BlockSpacing {
+    reduce(.init()) { $0.union($1.containerValues.textualBlockSpacing) }
+  }
+}
+
+extension StructuredText {
+  // Container values stop at layout boundaries. Preserve the old preference
+  // union explicitly when a block style introduces its own stack or padding.
+  struct BlockSpacingModifier: ViewModifier {
+    let spacing: BlockSpacing
+
+    func body(content: Content) -> some View {
+      Group(subviews: content) { children in
+        ForEach(children) { child in
+          child.containerValue(
+            \.textualBlockSpacing,
+            child.containerValues.textualBlockSpacing.union(spacing)
+          )
         }
       }
     }
