@@ -11,8 +11,14 @@ extension StructuredText {
       self.configuration = configuration
     }
 
-    var body: S.Body {
-      style.makeBody(configuration: configuration)
+    var body: some View {
+      Group(subviews: configuration.label) { blocks in
+        style.makeBody(configuration: .init(
+          label: .init(ForEach(blocks) { $0 }),
+          indentationLevel: configuration.indentationLevel
+        ))
+        .modifier(BlockSpacingModifier(spacing: blocks.blockSpacing))
+      }
     }
   }
 }

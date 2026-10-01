@@ -113,6 +113,7 @@ public struct StructuredText: View {
   public init(_ markup: String, parser: any MarkupParser) {
     self.markup = markup
     self.parser = parser
+    self._attributedString = State(initialValue: (try? parser.attributedString(for: markup)) ?? .init())
   }
 
   public var body: some View {
@@ -122,7 +123,7 @@ public struct StructuredText: View {
         .modifier(TextSelectionCoordination())
     }
     .coordinateSpace(.textContainer)
-    .onChange(of: markup, initial: true) {
+    .onChange(of: markup) {
       markupDidChange(markup)
     }
     // Disable line limit to avoid per-fragment truncation
